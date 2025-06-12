@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.9/html5-qrcode.min.js"></script>
+
+
+    <style>
+      
+      body 
+       <iframe style="width: 100%; height: 100vh;" scrolling="yes" src="https://script.google.com/macros/s/AKfycbz83bFpcJaahryBvsyi7LhOmzgWBSAYyx_9CqtLgav_UBM3beDoqWIARXHdUCozj9Za/exec" frameborder="0"></iframe>
+      {
+        font-family: sans-serif;
+      }
+////หน้าการขาย//
+.product-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 3px rgba(0, 128, 0, 0.3);
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #4CAF50;
+  transition: transform 0.2s ease;
+}
+
+.product-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.product-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  margin-left: 10px;
+  margin-right: 380px;
+  box-sizing: border-box;
+
+  height: calc(100vh - 200px); /* ✅ กำหนดความสูงไม่เกินจอ */
+  overflow-y: auto;            /* ✅ ให้ scroll ถ้าเกิน */
+}
+.cart {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 380px;
+  background: #99FF99;
+  color: black;
+  padding: 20px 1cm 0 1cm;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+/* กล่องรายการสินค้าในตะกร้า ให้ scroll ได้ */
+#cart-items {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+  margin-bottom: 20px; /* เว้นให้เห็นปุ่มล่าง */
+}
+/* กล่องรวมเงินและปุ่ม */
+.cart-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+.cart-buttons-wrapper {
+  margin-top: auto;
+}
+      .remove-btn {
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 2px 6px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+
+#payment-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  z-index: 999;
+  width: 90vw;
+  max-width: 400px; /* ขยายนิดหน่อยถ้าจอใหญ่ */
+  max-height: 90vh; /* ป้องกันล้นแนวตั้ง */
+  overflow-y: auto; /* สร้าง scroll bar ถ้าข้อมูลยาวเกิน */
+  box-sizing: border-box;
+}
+
+#payment-modal h3 {
+  margin-top: 0;
+  padding-top: 5px;
+  font-size: 20px;
+}
+      #success-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 2px solid #4caf50;
+        border-radius: 12px;
+        padding: 20px 30px;
+        box-shadow: 0 0 15px rgba(0, 128, 0, 0.3);
+        z-index: 9999;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+        max-width: 400px;
+      }
+
+      #cash-display {
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-size: 24px;
+        width: 100%;
+        text-align: right;
+        background-color: #fff;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
+      #keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px; /* 👈 ลดจาก 10px เป็น 6px */
+  margin-top: 10px;
+}
+
+#keypad button {
+  font-size: 16px;   /* 👈 จาก 20px เป็น 16px */
+  padding: 10px;     /* 👈 จาก 15px เป็น 10px */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+      #keypad button:hover {
+  background-color: #f0f0f0;
+}
+
+#keypad .yellow {
+  background-color: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+#keypad .blue {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+#keypad .green {
+  background-color: #4caf50;
+  color: white;
+}
+
+#keypad .wide {
+  grid-column: span 2;
+}
+
+#keypad .full-width {
+  grid-column: span 4;
+}
+
+.pay-method {
+  background: linear-gradient(to bottom, #d7ffd9, #a8e6af); /* ไล่เฉดจากเขียวอ่อนลงไปเข้ม */
+  border: 1px solid #999;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  min-width: 80px;
+  transition: all 0.3s ease;
+  flex: 1;
+  font-weight: bold;
+  color: #2e7d32;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.pay-method:hover {
+  background: linear-gradient(to bottom, #b2fab4, #81c784);
+  color: #1b5e20;
+}
+
+.pay-method.active {
+  background: linear-gradient(to bottom, #4caf50, #388e3c);
+  color: white;
+}
+     .product-card:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .product-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .product-container {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 1200px) {
+  .product-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+      .hidden {
+        display: none;
+      }
+.pay-button {
+  background-color: #28a745; /* เขียว */
+  color: white;
+  font-size: 0.55rem;
+  padding: 1rem;
+  width: 50%; /* แคบลงจาก 100% */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 0 auto; /* จัดปุ่มให้อยู่ตรงกลาง */
+}
+
+.pay-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #34c759, #1e7e34); /* สีสดขึ้น */
+  box-shadow: 0 6px 10px rgba(40, 167, 69, 0.4);
+}
+.pay-button {
+  background-color: #28a745;
+  color: white;
+  font-size: 1.5rem;
+  padding: 1rem;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.cash-input-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.cash-input-wrapper {
+  position: relative;
+  width: 100%;  
+}
+/// แสดงเงินทอนในเครื่องคิดเลข//
+.change-display {
+  position: absolute;
+  top: -30px;     /* 👈 ขยับขึ้น */
+  right: 0;
+  font-size: 14px;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #CC0000;
+  font-weight: bold;
+  border: 1px solid #ccc;
+}
+.cart-buttons {
+  display: flex;
+  margin-top: 10px;
+  gap: 10px;
+}
+/* ปุ่มเคลียร์สินค้า */
+#clear-cart {
+  flex: 2;
+  background: linear-gradient(135deg, #ff4e50, #f4364c); /* ไล่เฉดแดง */
+  color: white;
+  font-size: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(255, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+#clear-cart:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff6a6a, #ff3d3d); /* สีอ่อนลง */
+  box-shadow: 0 6px 10px rgba(255, 0, 0, 0.3);
+}
+
+/* ปุ่มพักบิล */
+#hold-bill-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #ffa500, #ff8c00); /* ไล่เฉดส้ม */
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(255, 165, 0, 0.2);
+  transition: all 0.3s ease;
+}
+/* ปุ่มเรียกบิล */
+#hold-bill-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ffbb33, #ff9900);
+  box-shadow: 0 6px 10px rgba(255, 165, 0, 0.3);
+}
+#recall-bill-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #007bff, #0056b3); /* ไล่เฉดน้ำเงิน */
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+#recall-bill-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #3399ff, #004080);
+  box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
+}
+
+/// ปุ่มยกเลิกในเครื่องคิดเลข///
+.cancel-button {
+  margin-top: 10px;
+  display: block;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.cancel-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #c62828, #e53935); /* สีสดขึ้น */
+  box-shadow: 0 6px 10px rgba(40, 167, 69, 0.4);
+}
+
+/// แสดงยอดรวมในเครื่องคิดเลข///
+.payment-total-box {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  text-align: right;
+  background-color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.payment-total-box label {
+  font-size: 16px;
+  color: #000000;
+}
+
+.payment-total-box strong {
+  font-size: 28px;
+  font-weight: bold;
+  color: #000000;
+}
+////ราคารวมในตะกร้า///
+.total-box {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 16px;         /* ↓ เล็กลงจาก 20px */
+  background: #ffffff;
+  color: #333;
+  padding: 0.1px 0.1px;      /* ↓ ลดขนาด padding */
+  border-radius: 0.5px;      /* ↓ มุมน้อยลง */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ลดเงาให้นุ่มขึ้น */
+  text-align: center;
+  animation: fadeInScale 0.4s ease;
+}
+
+.total-box span {
+  color: #d81b60;
+  font-size: 20px;         /* ↓ ตัวเลขเล็กลงนิดหน่อย */
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.cart-divider {
+  margin-bottom: -5px; /* ขยับเข้าใกล้กล่องรวม */
+}
+///แสดงจำนวน // รายการ///
+#profit-summary {
+  font-size: 12px;
+  color: #888;
+  text-align: right;
+}
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+/* ลบลูกศรเพิ่ม/ลด ของ input[type=number] */
+#manual-discount::-webkit-inner-spin-button,
+#manual-discount::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#manual-discount {
+  -moz-appearance: textfield; /* สำหรับ Firefox */
+}
+@media print {
+  #receipt-modal {
+    background: white;
+    padding: 0;
+  }
+
+  #receipt-content {
+    width: 58mm;
+    max-width: 58mm;
+    font-size: 10pt;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  #receipt-content p {
+    margin: 4px 0;
+    text-align: left;
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+
+  #receipt-content hr {
+    margin: 6px 0;
+    border: none;
+    border-top: 1px dashed #000;
+  }
+
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}
+//แถบซ้าย//
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 100vh;
+  background: #99FF99;
+  padding-top: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border: none;
+  background: linear-gradient(to bottom, #ffffff, #e0e0e0); /* ไล่เฉดสี */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เงาด้านล่าง */
+  text-align: left;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar button:hover {
+  background: linear-gradient(to bottom, #d0ffd0, #a0ffa0); /* เขียวอ่อนตอน hover */
+  box-shadow: 0 6px 10px rgba(0, 128, 0, 0.3); /* เงาเข้มขึ้น */
+  transform: translateY(-2px); /* เด้งนิดหน่อย */
+}
+
+.sidebar button.active {
+  background: linear-gradient(to bottom, #4caf50, #388e3c); /* เขียวเข้ม */
+  color: white;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  transform: none; /* ไม่เด้งแบบ hover */
+}
+
+.main-wrapper {
+  margin-left: 180px; /* เท่าความกว้าง sidebar */
+  padding: 20px;
+  overflow-x: hidden; /* ✅ ป้องกันล้นขวาแบบ scroll */
+}
+
+//หน้าสต็อก//
+.stock-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 10px;
+  margin-left: 10px;
+  margin-right: 80px;
+  box-sizing: border-box;
+  height: calc(100vh - 200px); /* ✅ กำหนดความสูงไม่เกินจอ */
+  overflow-y: auto;            /* ✅ ให้ scroll ถ้าเกิน */
+}
+
+.stock-card {
+  background: #fff;
+  border: 1px solid #4CAF50;
+  border-radius: 10px;
+  box-shadow: 0 0 3px rgba(0, 128, 0, 0.2);
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+
+.stock-card img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.stock-card:hover {
+  transform: scale(1.03);
+}
+
+.stock-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.stock-qty {
+  font-size: 13px;
+  color: #444;
+}
+
+
+
+    </style>
+  </head>
+
+  <body>
+    <!-- Top search bar -->
+    <div style="background: #F5F5F5; padding: 8px 16px; margin-left: 180px;">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="ค้นหา name/serial/barcode (Ctrl+f)"
+        style="width: 50%; padding: 10px; border-radius: 6px; border: 3px solid #ccc; font-size: 16px;"
+        onkeydown="if(event.key === 'Enter') searchAndAddToCart()"
+      />
+      <button onclick="searchAndAddToCart()" style="padding: 10px 16px; margin-left: 10px;">ตกลง</button>
+    </div>
+
+  <!-- Sidebar -->
+<!-- Sidebar -->
+<div class="sidebar">
+  <div style="padding: 10px; font-weight: bold;">🏪 ร้านขายของทั่วไป</div>
+  <!-- ✅ ย้ายปุ่มทั้งหมดมาไว้ใน sidebar -->
+<button id="btn-sale" onclick="showPage('sale')">🛍️ หน้าขาย</button>
+<button id="btn-stock" onclick="showPage('stock')">📁 สต็อกสินค้า</button>
+<button id="btn-report" onclick="showPage('report')">📊 รายงานการขาย</button>
+</div>
+
+  <!-- Main content -->
+  <div class="main-wrapper">
+    <!-- หน้าขาย -->
+    <div id="section-pos">
+      <h2>🛍️ หน้าขาย</h2>
+      <div id="product-list" class="product-container"></div>
+    </div>
+
+    <!-- หน้าสต็อก -->
+<div id="stock-section" class="hidden" style="position: relative;">
+  <h2 style="margin-right: 50px;">📦 รายการสินค้าในสต็อก</h2>
+
+ <!-- ✅ ปุ่มลอยมุมขวาบนในพื้นที่สีขาว -->
+<button onclick="showBarcodeTypeModal()" style="
+  position: absolute;
+  top: 0;
+  right: 60px;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 128, 0, 0.2);
+  z-index: 1;
+  transition: background 0.3s, transform 0.2s;
+" title="เพิ่มสินค้าใหม่"
+  onmouseover="this.style.background='#bff0c8'"
+  onmouseout="this.style.background='#d4edda'"
+>
+  ➕ เพิ่มสินค้าใหม่
+</button>
+
+<div class="stock-container" id="stock-list"></div>
+</div>
+
+
+<!-- ✅ Modal ประเภทบาร์โค้ด -->
+<div id="barcode-type-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+  background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:9999; width:320px;">
+
+  <h3 style="text-align:center; background:#339900; padding:10px; border-radius:8px;">ประเภทบาร์โค้ด</h3>
+  <div style="margin-top:16px;">
+    <label><input type="radio" name="barcode-option" value="no" checked> สินค้าไม่มีบาร์โค้ด</label><br>
+    <label><input type="radio" name="barcode-option" value="yes"> สินค้ามีบาร์โค้ด</label>
+  </div>
+
+  <div id="barcode-scan-area" style="text-align:center; margin:20px 0;">
+    <div id="scan-area" style="display:none; margin-bottom:10px;">
+  <div id="reader" style="width:300px;"></div>
+  <input id="manual-barcode" placeholder="รหัสบาร์โค้ด">
+  <button onclick="startScan()">📷 สแกน</button>
+      <button onclick="stopScan()" style="margin-top:10px;">❌ ปิดกล้อง</button>
+    </div>
+
+    <button onclick="startScan()" style="background:#eee; border:none; padding:10px 20px; border-radius:6px;">📷 สแกนจากกล้อง</button>
+    <div style="margin:10px 0;">หรือ</div>
+    <input type="text" id="manual-barcode" placeholder="ใส่รหัสบาร์โค้ด" style="width:100%; padding:6px; text-align:center;">
+  </div>
+
+  <div style="display:flex; justify-content:space-between;">
+    <button onclick="cancelBarcodeTypeModal()">ยกเลิก</button>
+    <button onclick="confirmBarcodeType()">บันทึก</button>
+  </div>
+</div>
+
+
+
+<!-- ✅ Modal เพิ่มสินค้าใหม่ -->
+<div id="add-product-modal" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #f6fff7;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  z-index: 9999;
+  width: 320px;
+  font-family: 'Prompt', sans-serif;
+  color: #333;
+">
+<!-- ✅ Custom Alert Modal -->
+<div id="custom-alert" style="
+  display: none;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  text-align: center;
+  font-size: 16px;
+  z-index: 9999;
+">
+  <div id="custom-alert-message" style="margin-bottom: 20px;"></div>
+ <button onclick="submitNewProduct()" style="
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  ">ตกลง</button>
+</div>
+
+  <h3 style="margin-top:0; color: #228B22;">➕ เพิ่มสินค้าใหม่</h3>
+
+  <label>ชื่อสินค้า:</label>
+  <input type="text" id="new-name" style="width:100%; margin-bottom:8px; padding:6px; background:#f0fff4; border:1px solid #c3e6cb; border-radius:4px;"><br>
+
+  <label>ราคาขาย:</label>
+  <input type="number" id="new-price" min="0" style="width:100%; margin-bottom:8px; padding:6px; background:#f0fff4; border:1px solid #c3e6cb; border-radius:4px;"><br>
+
+  <label>ต้นทุน:</label>
+  <input type="number" id="new-cost" min="0" style="width:100%; margin-bottom:8px; padding:6px; background:#f0fff4; border:1px solid #c3e6cb; border-radius:4px;"><br>
+
+  <label>คงเหลือ:</label>
+  <input type="number" id="new-quantity" min="0" style="width:100%; margin-bottom:8px; padding:6px; background:#f0fff4; border:1px solid #c3e6cb; border-radius:4px;"><br>
+
+<label>บาร์โค้ด:</label>
+<input type="text" id="new-barcode" placeholder="เช่น 12345678" style="width:100%; margin-bottom:8px; padding:6px; background:#f0fff4; border:1px solid #c3e6cb; border-radius:4px;" readonly>
+<div style="text-align:center; margin-bottom:8px;">
+  <svg id="barcode-svg"></svg>
+</div>
+
+  <label>เลือกรูปภาพ:</label>
+  <input type="file" id="new-image-file" accept="image/*" style="width:100%; margin-bottom:12px;"><br>
+
+  <div style="text-align:right;">
+    <button onclick="submitNewProduct()" style="
+      background:#28a745;
+      color:white;
+      border:none;
+      padding:8px 16px;
+      border-radius:6px;
+      font-weight:bold;
+      cursor:pointer;
+    ">✅ ตกลง</button>
+
+    <button onclick="closeAddProductModal()" style="
+      margin-left:10px;
+      background:#dee2e6;
+      color:#333;
+      border:none;
+      padding:8px 16px;
+      border-radius:6px;
+      font-weight:bold;
+      cursor:pointer;
+    ">❌ ยกเลิก</button>
+  </div>
+</div>
+
+<!-- ✅ ซ่อนลูกศร spinner ของ input type=number -->
+<style>
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+</style>
+
+<!-- ✅ Modal แก้ไขสินค้า -->
+<div id="edit-product-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:#fff7f7; padding:20px; border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.2); z-index:9999; width:320px;">
+
+  <h3 style="color:#d9534f;">🛠 แก้ไขสินค้า</h3>
+
+  <input type="hidden" id="edit-index" />
+  <label>ชื่อสินค้า:</label>
+  <input type="text" id="edit-name" style="width:100%; margin-bottom:8px;"><br>
+
+  <label>ราคาขาย:</label>
+  <input type="number" id="edit-price" style="width:100%; margin-bottom:8px;"><br>
+
+  <label>ต้นทุน:</label>
+  <input type="number" id="edit-cost" style="width:100%; margin-bottom:8px;"><br>
+
+  <label>คงเหลือ:</label>
+  <input type="number" id="edit-quantity" style="width:100%; margin-bottom:8px;"><br>
+
+<div style="display: flex; gap: 10px; margin-bottom: 8px;">
+  <div style="flex: 1;">
+    <label>รับเข้า:</label>
+    <input type="number" id="edit-in" value="0" oninput="updateStockPreview()" style="width: 100%;">
+  </div>
+  <div style="flex: 1;">
+    <label>ส่งออก:</label>
+    <input type="number" id="edit-out" value="0" oninput="updateStockPreview()" style="width: 100%;">
+  </div>
+</div>
+
+  <label>บาร์โค้ด:</label>
+  <input type="text" id="edit-barcode" style="width:100%; margin-bottom:8px;" readonly><br>
+
+  <label>เลือกรูปภาพใหม่ (ถ้าจะเปลี่ยน):</label>
+  <input type="file" id="edit-image-file" accept="image/*" style="width:100%; margin-bottom:12px;"><br>
+
+  <div style="text-align:right;">
+    <button onclick="submitEditProduct()" style="background:#f0ad4e; color:white; border:none; padding:8px 16px; border-radius:6px;">💾 บันทึก</button>
+    <button onclick="closeEditProductModal()" style="margin-left:10px; background:#dee2e6; color:#333; padding:8px 16px; border-radius:6px;">ยกเลิก</button>
+  </div>
+</div>
+
+
+    <!-- รายงาน -->
+    <div id="section-report" class="hidden">
+      <h2>📊 รายงานการขาย</h2>
+      <p>(เชื่อม Google Sheet ภายหลัง)</p>
+    </div>
+  </div>
+
+        <!-- ตะกร้าสินค้า -->
+<div class="cart">
+  <h3>📑ตะกร้าสินค้า</h3>
+  <div id="cart-items">
+    <!-- รายการสินค้า -->
+</div>
+<div id="profit-summary">
+  รายการทั้งหมด: <span id="item-count">0</span> ชนิด<br>
+  จำนวนสินค้า: <span id="product-quantity">0</span> ชิ้น
+</div>
+  
+<!-- ราคารวม -->
+<div class="total-box">
+  <hr />
+  💸 รวม: <span id="total">0</span> บาท
+</div>
+
+  <!-- ปุ่มต่างๆ -->
+  <div class="cart-buttons-wrapper">
+    <button class="pay-button" onclick="showPaymentModal()">💰 ชำระเงิน 💰</button>
+
+    <div class="cart-buttons">
+      <button id="clear-cart">✖ เคลียร์สินค้า ✖</button>
+      <button id="hold-bill-btn" onclick="holdBill()">📥 พักบิล (<span id="hold-count">0</span>)</button>
+      <button id="recall-bill-btn" onclick="showRecallBillPopup()">📤 เรียกบิล</button>
+    </div>
+  </div>
+</div>
+
+    <!-- Modal ชำระเงิน -->
+    <div id="payment-modal">
+      <h3>🚩คิดเงิน</h3>
+      <div class="payment-total-box">
+  <label>ยอดรวม: <strong id="payment-total">0</strong> บาท</label>
+</div>
+
+<!-- ส่วนลด กดลดมือ -->
+<div class="cash-input-container">
+  <label for="manual-discount">ส่วนลด กดลดมือ :</label>
+  <div class="cash-input-wrapper">
+    <input type="number" id="manual-discount" placeholder="0" min="0" style="width: 100%; font-size: 24px; padding: 6px; border-radius: 8px; text-align: left;">
+    <span onclick="clearDiscount()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-weight: bold; color: goldenrod; cursor: pointer;">X</span>
+  </div>
+</div>
+
+<div class="cash-input-container">
+  <label>รับเงิน:</label>
+  <div class="cash-input-wrapper">
+    <div id="cash-display"></div>
+    <div class="change-display">เงินทอน: ฿<span id="change-amount"></span></div>
+  </div>
+</div>
+
+      <div id="keypad">
+        <button onclick="appendDigit('7')">7</button>
+        <button onclick="appendDigit('8')">8</button>
+        <button onclick="appendDigit('9')">9</button>
+        <button class="green" onclick="appendAmount(100)">100</button>
+
+        <button onclick="appendDigit('4')">4</button>
+        <button onclick="appendDigit('5')">5</button>
+        <button onclick="appendDigit('6')">6</button>
+        <button class="green" onclick="appendAmount(500)">500</button>
+
+        <button onclick="appendDigit('1')">1</button>
+        <button onclick="appendDigit('2')">2</button>
+        <button onclick="appendDigit('3')">3</button>
+        <button class="green" onclick="appendAmount(1000)">1000</button>
+
+        <button onclick="appendDigit('0')">0</button>
+        <button onclick="appendDigit('.')">.</button>
+        <button class="yellow" onclick="clearCash()">ลบ</button>
+        <button class="green" onclick="payExact()">ชำระเงินพอดี</button>
+        <button class="blue full-width" onclick="submitPayment()">ตกลง</button>
+      </div>
+
+      <div style="text-align: left; margin-top: 1px;">
+        <label>ช่องทางชำระเงิน:</label>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+          <button class="pay-method active" data-method="เงินสด">💵 เงินสด</button>
+          <button class="pay-method" data-method="โอนเงิน">💳 โอนเงิน</button>
+        </div>
+      </div>
+
+    <!-- เพิ่ม QR Modal -->
+    <div id="promptpay-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.3); z-index:9999; text-align:center;">
+      <h3>🔶 สแกนจ่ายผ่าน PromptPay</h3>
+      <img id="promptpay-img" src="" width="200" alt="QR PromptPay">
+      <p id="qr-amount" style="margin-top:10px; font-size:18px;"></p>
+<button onclick="confirmPromptPayPayment()" style="margin-top:10px; padding:6px 16px; background:#f44336; color:white; border:none; border-radius:6px;">✅ ลูกค้าชำระเงินแล้ว</button>
+
+    </div>
+
+<button class="cancel-button" onclick="closeModal()">ยกเลิก</button>
+    </div>
+
+    <!-- Success Popup -->
+    <div id="success-popup">
+      🟢 บันทึกการขายสำเร็จ!<br>
+      เงินทอน: <span id="popup-change">0</span> บาท
+    </div>
+
+<!-- ✅ ใบเสร็จแสดงหลังชำระเงิน -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<div id="receipt-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:10000; overflow:auto; padding:20px;">
+  <div id="receipt-content" style="width: 100%; max-width: 58mm; margin: 0 auto; background: #fff; padding: 10px; border-radius: 0; font-family: monospace; font-size: 10pt;">
+    <div style="text-align:center;">
+      <img src="https://via.placeholder.com/100x50" alt="โลโก้" />
+      <h3>นันท์ติญา ผ้าฝ้าย</h3>
+      <p>Muang Tuet, Phu Phiang, Nan Thailand, 55000</p>
+      <hr />
+      <h4>ใบเสร็จรับเงิน</h4>
+    </div>
+    <div id="receipt-details" style="font-size:14px;"></div>
+    <hr />
+<div style="text-align:right; font-size:14px; margin-top: 15px;">
+  <p><strong>รวมทั้งหมด:</strong> <span id="receipt-total"></span> บาท</p>
+  <p><strong>ส่วนลด:</strong> <span id="receipt-discount"></span> บาท</p>
+  <p><strong>ราคาสุทธิ:</strong> <span id="receipt-nettotal"></span> บาท</p> <!-- ✅ บรรทัดนี้ -->
+  <p><strong>รับเงิน:</strong> <span id="receipt-received"></span> บาท</p>
+  <p><strong>เงินทอน:</strong> <span id="receipt-change"></span> บาท</p>
+   <p><strong>ช่องทางชำระ:</strong> <span id="receipt-method"></span></p>
+</div>
+
+
+    <div style="text-align:center; font-size:12px;">
+      FB: นันท์ติญา ผ้าฝ้าย ผ้าพื้นเมือง<br/>
+      พัฒนาโดย เฟรม
+    </div>
+    <div style="margin-top:10px; text-align:center;">
+<button class="no-print" onclick="printAndClose()">🖨 พิมพ์</button>
+<button class="no-print" onclick="downloadReceiptImageAndClose()">🖼 บันทึกรูป</button>
+
+    </div>
+  </div>
+</div>
+
+    <script>
+      let selectedMethod = "เงินสด"; // เพิ่มตรงนี้เพื่อให้ selectedMethod ทำงานได้
+      let cart = [];
+      let cashReceived = "";
+  
+      
+
+function renderProducts(products) {
+  const list = document.getElementById('product-list');
+  list.innerHTML = products.map(p => `
+    <div class="product-card" data-barcode="${p.barcode}" data-serial="${p.serial || ''}">
+      <img src="${p.image || 'https://via.placeholder.com/100'}"
+        onclick='addToCart(${JSON.stringify(p)})' alt="" />
+      <div class="product-name"><strong>${p.name}</strong></div>
+      <div>฿${p.price}</div>
+    </div>
+  `).join('');
+}
+
+function addToCart(product) {
+  const index = cart.findIndex(p => p.barcode === product.barcode);
+  if (index !== -1) {
+    cart[index].quantity += 1;
+  } else {
+    product.quantity = 1;
+    cart.push(product);
+  }
+  updateCart();
+}
+
+function removeFromCart(barcode) {
+  barcode = barcode.toString(); // แปลงให้แน่ใจว่าเป็น string
+  console.log("Removing item with barcode:", barcode);
+
+  const index = cart.findIndex(p => p.barcode.toString() === barcode);
+  if (index !== -1) {
+    cart[index].quantity -= 1;
+    console.log(`New quantity of ${cart[index].name}:`, cart[index].quantity);
+    if (cart[index].quantity <= 0) {
+      cart.splice(index, 1);
+    }
+  }
+  updateCart();
+}
+function updateCart() {
+  const cartBox = document.getElementById('cart-items');
+  const total = document.getElementById('total');
+  cartBox.innerHTML = '';
+  let sum = 0;
+  document.getElementById('clear-cart').onclick = function () {
+  cart = [];
+  updateCart();
+};
+  console.log("Current cart:", cart); // 👈 เพิ่มตรงนี้
+
+  cart.forEach(item => {
+    cartBox.innerHTML += `
+      <div>
+        ${item.name} x${item.quantity} - ฿${(item.price * item.quantity).toFixed(2)}
+        <button class="remove-btn" onclick="removeFromCart('${item.barcode.toString()}')">ลบ</button>
+      </div>`;
+    sum += item.price * item.quantity;
+  });
+
+  total.textContent = `฿${sum.toFixed(2)}`;
+}
+      function showPaymentModal() {
+        document.getElementById('payment-total').innerText = document.getElementById('total').innerText;
+        cashReceived = "";
+        updateCashDisplay();
+        document.getElementById('payment-modal').style.display = 'block';
+      }
+
+      function closeModal() {
+        document.getElementById('payment-modal').style.display = 'none';
+      }
+
+      function appendDigit(digit) {
+        if (digit === '.' && cashReceived.includes('.')) return;
+        cashReceived += digit;
+        updateCashDisplay();
+      }
+
+      function appendAmount(amount) {
+        let current = Number(cashReceived) || 0;
+        current += amount;
+        cashReceived = current.toFixed(2);
+        updateCashDisplay();
+      }
+
+      function clearCash() {
+        cashReceived = "";
+        updateCashDisplay();
+      }
+
+      function fillExactTotal() {
+        const total = Number(document.getElementById('total').textContent);
+        cashReceived = total.toFixed(2);
+        updateCashDisplay();
+      }
+
+function updateCashDisplay() {
+  const cash = Number(cashReceived) || 0;
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+
+  document.getElementById('cash-display').innerText = cash.toFixed(2);
+
+  const totalText = document.getElementById('total').textContent.replace(/[^\d.]/g, '');
+  const originalTotal = Number(totalText);
+  const discountedTotal = Math.max(originalTotal - discount, 0);
+
+  const change = cash - discountedTotal;
+  document.getElementById('change-amount').innerText = change.toFixed(2);
+
+  // ✅ เพิ่มบรรทัดนี้ให้ยอดรวมด้านบนเปลี่ยนตามส่วนลด
+  document.getElementById('payment-total').innerText = discountedTotal.toFixed(2);
+}
+
+      function showSuccessPopup(change) {
+        document.getElementById('popup-change').innerText = change.toFixed(2);
+        const popup = document.getElementById('success-popup');
+        popup.style.display = 'block';
+        setTimeout(() => popup.style.display = 'none', 2500);
+      }  
+function payExact() {
+  const totalText = document.getElementById('total').textContent.replace(/[^\d.]/g, '');
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+  const total = Math.max(parseFloat(totalText) - discount, 0);
+  cashReceived = total.toFixed(2);
+  updateCashDisplay();
+}
+function submitPayment() {
+  const received = Number(cashReceived);
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+
+  const totalText = document.getElementById('total').textContent.replace(/[^\d.]/g, '');
+  const originalTotal = Number(totalText);
+  const total = Math.max(originalTotal - discount, 0);
+
+  const change = received - total;
+
+  if (received < total) {
+    alert('รับเงินไม่พอ');
+    return;
+  }
+
+  google.script.run.withSuccessHandler(() => {
+    showReceipt(cart, received, change, selectedMethod);
+    google.script.run.updateStockQuantityAfterSale(cart);
+    cart = [];
+    updateCart();
+    cashReceived = "";
+    document.getElementById('manual-discount').value = 0;
+    updateCashDisplay();
+    closeModal();
+    showSuccessPopup(change);
+  }).saveSale(cart, received, change, selectedMethod);
+}
+
+  function filterProducts() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const cards = document.querySelectorAll(".product-card"); // ตั้ง class ให้ทุก product เป็น .product-card
+
+  cards.forEach(card => {
+    const name = card.textContent.toLowerCase();
+    card.style.display = name.includes(input) ? "block" : "none";
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.pay-method').forEach(btn => {
+          btn.addEventListener('click', function () {
+            document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedMethod = this.dataset.method;
+
+            if (selectedMethod === "โอนเงิน") {
+              showQRPromptPay();
+            } else {
+              closeQRModal();
+            }
+          });
+        });
+      });
+
+
+function goTo(section) {
+  document.getElementById("section-pos").classList.add("hidden");
+  document.getElementById("stock-section").classList.add("hidden");
+  document.getElementById("section-report").classList.add("hidden");
+
+  document.getElementById("section-" + section).classList.remove("hidden");
+}
+// รองรับคีย์บอร์ดตอนเปิด modal คิดเงิน
+document.addEventListener('keydown', function (e) {
+  const modal = document.getElementById('payment-modal');
+  if (modal.style.display !== 'block') return;
+    if (document.activeElement.tagName === 'INPUT') return; // ✅ ถ้าพิมพ์ในช่อง input ใดๆ ให้ข้าม
+
+
+  const key = e.key;
+
+  if (!isNaN(key)) {
+    // ตัวเลข 0-9
+    appendDigit(key);
+  } else if (key === '.') {
+    appendDigit('.');
+  } else if (key === 'Backspace') {
+    // ลบตัวสุดท้าย
+    e.preventDefault(); // ป้องกัน browser ย้อนกลับ
+    cashReceived = cashReceived.slice(0, -1);
+    updateCashDisplay();
+  } else if (key === 'Enter') {
+    // ยืนยันชำระเงิน
+    submitPayment();
+  }
+});
+document.getElementById("searchInput").addEventListener("input", function () {
+  const keyword = this.value.toLowerCase();
+  document.querySelectorAll(".product-card").forEach(card => {
+    const name = card.querySelector(".product-name").textContent.toLowerCase();
+    const barcode = card.dataset.barcode;
+    const serial = card.dataset.serial;
+    if (name.includes(keyword) || barcode.includes(keyword) || serial.includes(keyword)) {
+      card.style.display = "";
+    } else {
+      card.style.display = "none";
+    }
+  });
+});
+
+function searchAndAddToCart() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const cards = document.querySelectorAll(".product-card");
+  let found = false;
+
+  cards.forEach(card => {
+    const name = card.querySelector(".product-name").textContent.toLowerCase();
+    const barcode = card.dataset.barcode;
+    const serial = card.dataset.serial;
+    if (name.includes(input) || barcode.includes(input) || serial.includes(input)) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.click();
+      found = true;
+    }
+  });
+
+  if (!found) alert("ไม่พบสินค้า");
+}
+       let cartItems = [];
+
+  function updateCartDisplay() {
+    // อัปเดต UI แสดงตะกร้า
+    // (คุณต้องมีฟังก์ชันนี้อยู่แล้ว)
+  }
+
+  function clearCart() {
+    cartItems = [];
+    updateCartDisplay();
+  }
+function holdBill() {
+  if (cart.length === 0) {
+    showCenterAlert("ไม่มีสินค้าในตะกร้า ไม่สามารถพักบิลได้");
+    return;
+  }
+
+  const heldBills = JSON.parse(localStorage.getItem('heldBills')) || [];
+  const timestamp = new Date().toISOString();
+  heldBills.push({ cart, timestamp });
+  localStorage.setItem('heldBills', JSON.stringify(heldBills));
+
+  cart = [];
+  updateCart();
+  updateHoldBillCount(); // อัปเดตจำนวนที่ปุ่ม
+}
+function updateHoldBillCount() {
+  const heldBills = JSON.parse(localStorage.getItem('heldBills')) || [];
+  const btn = document.getElementById('hold-bill-btn');
+  btn.innerText = `📥 พักบิล (${heldBills.length})`;
+}
+
+window.addEventListener('load', updateHoldBillCount);
+
+function showRecallBillPopup() {
+  const heldBills = JSON.parse(localStorage.getItem('heldBills')) || [];
+  if (heldBills.length === 0) {
+    showCenterAlert("ไม่มีบิลที่พักไว้");
+    return;
+  }
+
+ let popup = document.createElement("div");
+popup.id = "recall-popup";
+popup.style.position = "fixed";
+popup.style.top = "50%";
+popup.style.left = "50%";
+popup.style.transform = "translate(-50%, -50%)";
+popup.style.background = "#eaffea"; // เขียวอ่อน
+popup.style.padding = "25px";
+popup.style.borderRadius = "16px";
+popup.style.boxShadow = "0 8px 20px rgba(0, 128, 0, 0.2)";
+popup.style.zIndex = 9999;
+popup.style.maxHeight = "80vh";
+popup.style.overflowY = "auto";
+popup.style.minWidth = "260px";
+popup.style.textAlign = "center";
+
+popup.innerHTML = `<h3 style="color:#2e7d32; margin-top:0;">เลือกบิลที่ต้องการเรียก</h3>`;
+
+heldBills.forEach((bill, index) => {
+  const time = new Date(bill.timestamp).toLocaleString();
+  const btn = document.createElement("button");
+  btn.innerText = `🧾 บิล ${index + 1} - ${time}`;
+  btn.style.display = "block";
+  btn.style.margin = "10px 0";
+  btn.style.width = "100%";
+  btn.style.padding = "12px";
+  btn.style.borderRadius = "8px";
+  btn.style.border = "1px solid #a5d6a7";
+  btn.style.backgroundColor = "#ffffff";
+  btn.style.color = "#2e7d32";
+  btn.style.fontWeight = "bold";
+  btn.style.cursor = "pointer";
+  btn.style.transition = "background-color 0.3s ease";
+  btn.onmouseover = () => btn.style.backgroundColor = "#c8e6c9";
+  btn.onmouseout = () => btn.style.backgroundColor = "#ffffff";
+
+  btn.onclick = () => {
+    cart = [...bill.cart]; // เรียกบิลมาใส่ cart
+    heldBills.splice(index, 1); // ลบออกจาก list
+    localStorage.setItem("heldBills", JSON.stringify(heldBills));
+    updateCart();
+    updateHoldBillCount();
+    popup.remove();
+  };
+
+  popup.appendChild(btn);
+});
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.innerText = "ยกเลิก";
+  cancelBtn.style.marginTop = "10px";
+  cancelBtn.style.background = "red";
+  cancelBtn.style.color = "white";
+  cancelBtn.style.padding = "8px 16px";
+  cancelBtn.style.borderRadius = "8px";
+  cancelBtn.onclick = () => popup.remove();
+cancelBtn.onmouseover = () => cancelBtn.style.backgroundColor = "#c62828"; // สีแดงเข้ม
+cancelBtn.onmouseout = () => cancelBtn.style.backgroundColor = "#e53935"; // กลับสีเดิม
+  popup.appendChild(cancelBtn);
+  document.body.appendChild(popup);
+}
+window.onload = function () {
+  updateHoldBillCount();
+  updateCart(); // โหลดตะกร้าล่าสุด ถ้ามี
+};
+
+function updateCart() {
+  const cartBox = document.getElementById('cart-items');
+  const total = document.getElementById('total');
+  cartBox.innerHTML = '';
+  let sum = 0;
+  let totalItems = cart.length;
+  let totalQuantity = 0;
+
+  document.getElementById('clear-cart').onclick = function () {
+    cart = [];
+    updateCart();
+  };
+
+  cart.forEach(item => {
+    const itemTotal = item.price * item.quantity;
+    totalQuantity += item.quantity;
+
+    cartBox.innerHTML += `
+      <div>
+        ${item.name} x${item.quantity} - ฿${itemTotal.toFixed(2)}
+        <button class="remove-btn" onclick="removeFromCart('${item.barcode.toString()}')">ลบ</button>
+      </div>`;
+
+    sum += itemTotal;
+  });
+
+  total.textContent = `฿${sum.toFixed(2)}`;
+  document.getElementById('item-count').innerText = totalItems;
+  document.getElementById('product-quantity').innerText = totalQuantity;
+}
+
+google.script.run.withSuccessHandler(renderProducts).getProducts();
+
+// เพิ่มจากตรงนี้
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.pay-method').forEach(btn => {
+          btn.addEventListener('click', function () {
+            document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            selectedMethod = this.dataset.method;
+
+            if (selectedMethod === "โอนเงิน") {
+              showQRPromptPay();
+            } else {
+              closeQRModal();
+            }
+          });
+        });
+      });
+
+function showQRPromptPay() {
+  const totalText = document.getElementById('total').textContent.replace(/[^\d.]/g, '');
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+  const amount = Math.max(parseFloat(totalText) - discount, 0).toFixed(2); // ✅ ใช้ยอดสุทธิ
+
+  const promptPayID = "1559900307139"; // เปลี่ยนเป็นเบอร์หรือบัตร ปชช. จริง
+  const url = "https://promptpay.io/" + promptPayID + "/" + amount;
+
+  document.getElementById("promptpay-img").src = url;
+  document.getElementById("qr-amount").innerText = "ยอดที่ต้องชำระ: ฿" + amount;
+  document.getElementById("promptpay-modal").style.display = "block";
+}
+
+      
+      function generatePromptPayPayload(id, amount) {
+        const payload = [
+          '000201',
+          '010212',
+          '29370016A000000677010111',
+          `01130066${id}`,
+          '5303764',
+          '5802TH',
+          `5406${(parseFloat(amount) * 100).toFixed(0)}`,
+          '6304'
+        ].join('');
+        return payload + getCRC16(payload);
+      }
+
+      function getCRC16(payload) {
+        let crc = 0xFFFF;
+        for (let i = 0; i < payload.length; i++) {
+          crc ^= payload.charCodeAt(i) << 8;
+          for (let j = 0; j < 8; j++) {
+            if ((crc & 0x8000) !== 0) {
+              crc = (crc << 1) ^ 0x1021;
+            } else {
+              crc <<= 1;
+            }
+            crc &= 0xFFFF;
+          }
+        }
+        return crc.toString(16).toUpperCase().padStart(4, '0');
+      }
+function confirmPromptPayPayment() {
+  const totalText = document.getElementById('total').textContent.replace(/[^\d.]/g, '');
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+  const total = Math.max(parseFloat(totalText) - discount, 0).toFixed(2);
+
+  cashReceived = total;
+  updateCashDisplay();
+  closeQRModal();
+  submitPayment(); // ✅ สำคัญ ต้องมีบรรทัดนี้!
+}
+
+function showReceipt(cart, received, change, method) {
+  const now = new Date();
+  const receiptId = "R" + now.getTime();
+  const dateStr = now.toLocaleString("th-TH");
+  let html = `
+    <p>วันที่: ${dateStr}</p>
+    <p>เลขที่ใบเสร็จ: ${receiptId}</p>
+    <p>พนักงานขาย: -</p>
+    <hr />
+  `;
+  let total = 0;
+  const discount = Number(document.getElementById('manual-discount')?.value || 0);
+  cart.forEach(item => {
+    const line = `${item.quantity} x ${item.name} @ ${item.price} = ${(item.quantity * item.price).toFixed(2)} บาท`;
+    html += `<p>${line}</p>`;
+    total += item.quantity * item.price;
+  });
+  const netTotal = Math.max(total - discount, 0);
+
+  document.getElementById("receipt-details").innerHTML = html;
+  document.getElementById("receipt-total").innerText = total.toFixed(2);
+  document.getElementById("receipt-discount").innerText = discount.toFixed(2);
+  document.getElementById("receipt-nettotal").innerText = netTotal.toFixed(2);
+  document.getElementById("receipt-method").innerText = method;
+  document.getElementById("receipt-received").innerText = received.toFixed(2);
+  document.getElementById("receipt-change").innerText = change.toFixed(2);
+
+  document.getElementById("receipt-modal").style.display = "block";
+}
+
+
+function downloadReceiptImage() {
+  html2canvas(document.getElementById("receipt-content")).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "receipt.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+function printAndClose() {
+  const printButtons = document.querySelectorAll('.no-print');
+  printButtons.forEach(btn => btn.style.display = 'none'); // ซ่อนปุ่มก่อนพิมพ์
+
+  const receipt = document.getElementById("receipt-content").innerHTML;
+
+  const printWindow = window.open('', '', 'width=600,height=800');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>ใบเสร็จ</title>
+        <style>
+          body { font-family: sans-serif; padding: 20px; }
+        </style>
+      </head>
+      <body onload="window.print(); window.onafterprint = window.close();">
+        ${receipt}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  setTimeout(() => {
+    printButtons.forEach(btn => btn.style.display = ''); // โชว์กลับหลังพิมพ์
+    document.getElementById("receipt-modal").style.display = "none";
+  }, 500);
+}
+
+
+function downloadReceiptImageAndClose() {
+  const printButtons = document.querySelectorAll('.no-print');
+  printButtons.forEach(btn => btn.style.display = 'none'); // ซ่อนก่อนจับภาพ
+
+  html2canvas(document.getElementById("receipt-content")).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "receipt.png";
+    link.href = canvas.toDataURL();
+    link.click();
+
+    setTimeout(() => {
+      printButtons.forEach(btn => btn.style.display = ''); // โชว์ปุ่มกลับมา
+      document.getElementById("receipt-modal").style.display = "none";
+    }, 500);
+  });
+}
+
+
+function clearDiscount() {
+  document.getElementById('manual-discount').value = 0;
+  updateCashDisplay();
+}
+document.getElementById('manual-discount')?.addEventListener('input', updateCashDisplay);
+
+function closeQRModal() {
+  document.getElementById("promptpay-modal").style.display = "none";
+}
+
+////สต็อกสินค้า///
+function showPage(page) {
+  document.getElementById("section-pos").style.display = 'none';
+  document.getElementById("stock-section").style.display = 'none';
+  document.getElementById("section-report").style.display = 'none';
+
+  // ✅ ซ่อนตะกร้าไว้ก่อนทุกหน้า
+  document.querySelector(".cart").style.display = "none";
+
+  if (page === 'sale') {
+    document.getElementById("section-pos").style.display = 'block';
+    document.querySelector(".cart").style.display = "flex"; // ✅ โชว์ตะกร้าเฉพาะหน้าขาย
+  } else if (page === 'stock') {
+    document.getElementById("stock-section").style.display = 'block';
+    loadStock?.();
+  } else if (page === 'report') {
+    document.getElementById("section-report").style.display = 'block';
+  }
+
+  // ✅ จัด active ปุ่ม sidebar
+  document.querySelectorAll(".sidebar button").forEach(btn => btn.classList.remove("active"));
+  const activeBtn = document.getElementById("btn-" + page);
+  if (activeBtn) activeBtn.classList.add("active");
+}
+
+
+
+function loadStock() {
+  google.script.run.withSuccessHandler(renderStock).getStockItems();
+}
+function renderStock(items) {
+  const container = document.getElementById("stock-list");
+  container.innerHTML = "";
+
+  items.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "stock-card";
+
+    const img = document.createElement("img");
+    img.src = "https://via.placeholder.com/100"; // Default image
+
+    if (p.image) {
+      fetch(p.image)
+        .then(res => res.text())
+        .then(url => {
+          img.src = url;
+        })
+        .catch(() => {
+          img.src = "https://via.placeholder.com/100";
+        });
+    }
+
+    // ✅ คลิกที่รูปเพื่อเปิด modal แก้ไข
+    img.onclick = () => openEditProductModal(p);
+
+    const name = document.createElement("div");
+    name.className = "stock-name";
+    name.innerHTML = `<strong>${p.name}</strong>`;
+
+    const qty = document.createElement("div");
+    qty.className = "stock-qty";
+    qty.innerText = `คงเหลือ: ${p.quantity}`;
+
+    card.appendChild(img);
+    card.appendChild(name);
+    card.appendChild(qty);
+    container.appendChild(card);
+  });
+}
+
+
+    function updateStock(barcode, delta) {
+      google.script.run.withSuccessHandler(() => {
+        const el = document.getElementById(`stock-${barcode}`);
+        if (el) el.innerText = Number(el.innerText) + delta;
+      }).updateStockQuantity(barcode, delta);
+    }
+
+function showAddProductModal(barcodeValue) {
+  document.getElementById("add-product-modal").style.display = "block";
+
+  const barcodeField = document.getElementById("new-barcode");
+  barcodeField.value = barcodeValue;
+
+  // ✅ แสดง barcode ด้วย JsBarcode
+  JsBarcode("#barcode-svg", barcodeValue, {
+    format: "CODE128",
+    lineColor: "#000",
+    width: 2,
+    height: 60,
+    displayValue: true
+  });
+}
+
+
+
+function closeAddProductModal() {
+  document.getElementById("add-product-modal").style.display = "none";
+}
+
+function submitNewProduct() {
+  const name = document.getElementById("new-name").value;
+  const price = parseFloat(document.getElementById("new-price").value);
+  const cost = parseFloat(document.getElementById("new-cost").value);
+  const quantity = parseInt(document.getElementById("new-quantity").value);
+  const barcode = document.getElementById("new-barcode").value;
+  const fileInput = document.getElementById("new-image-file");
+  const file = fileInput.files[0];
+
+  if (!name || !price || !cost || !quantity || !barcode) {
+    showCustomAlert("กรุณากรอกข้อมูลให้ครบ");
+    return;
+  }
+
+  if (!file) {
+    showCustomAlert("กรุณาเลือกรูปภาพ");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result.split(",")[1];
+    const fileData = {
+      name: file.name,
+      type: file.type,
+      content: base64,
+      product: { name, price, cost, quantity, barcode }
+    };
+
+    google.script.run.withSuccessHandler(() => {
+      // ✅ แสดงป็อปอัปก่อน แล้วรอ 500ms ก่อนปิด modal
+      showCustomAlert("✅ เพิ่มสินค้าเรียบร้อยแล้ว!");
+
+      setTimeout(() => {
+        clearAddProductForm();
+        closeAddProductModal();
+        loadStock();
+        google.script.run.withSuccessHandler(renderProducts).getProducts();
+      }, 500);
+    }).uploadProductImageAndSave(fileData);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showCustomAlert(message) {
+  document.getElementById("custom-alert-message").innerText = message;
+  const alertBox = document.getElementById("custom-alert");
+  alertBox.style.display = "block";
+}
+function showCustomAlert(message) {
+  document.getElementById("custom-alert-message").innerText = message;
+  const alertBox = document.getElementById("custom-alert");
+  alertBox.style.display = "block";
+
+  // ✅ ถ้าผู้ใช้ไม่กด “ตกลง” ก็ปิดอัตโนมัติใน 2 วินาที
+  setTimeout(() => {
+    if (alertBox.style.display === "block") {
+      alertBox.style.display = "none";
+    }
+  }, 2000);
+}
+
+function closeCustomAlert() {
+  document.getElementById("custom-alert").style.display = "none";
+}
+function clearAddProductForm() {
+  document.getElementById("new-name").value = "";
+  document.getElementById("new-price").value = "";
+  document.getElementById("new-cost").value = "";
+  document.getElementById("new-quantity").value = "";
+  document.getElementById("new-barcode").value = "";
+  document.getElementById("new-image-file").value = "";
+}
+
+//Modal แก้ไขสินค้า//
+function openEditProductModal(product) {
+  document.getElementById("edit-name").value = product.name;
+  document.getElementById("edit-price").value = product.price;
+  document.getElementById("edit-cost").value = product.cost;
+  document.getElementById("edit-quantity").value = product.quantity;
+  document.getElementById("edit-barcode").value = product.barcode;
+
+  // 🟢 เพิ่มชุดนี้
+ document.getElementById("edit-quantity").dataset.originalQty = product.quantity;
+  document.getElementById("edit-in").value = 0;
+  document.getElementById("edit-out").value = 0;
+
+  document.getElementById("edit-product-modal").style.display = "block";
+}
+
+function updateStockPreview() {
+  const baseQty = parseInt(document.getElementById("edit-quantity").dataset.originalQty || "0");
+  const inputIn = parseInt(document.getElementById("edit-in").value || "0");
+  const inputOut = parseInt(document.getElementById("edit-out").value || "0");
+  const result = baseQty + inputIn - inputOut;
+  document.getElementById("edit-quantity").value = result < 0 ? 0 : result;
+}
+
+function closeEditProductModal() {
+  document.getElementById("edit-product-modal").style.display = "none";
+}
+
+function submitEditProduct() {
+  const barcode = document.getElementById("edit-barcode").value;
+  const name = document.getElementById("edit-name").value;
+  const price = parseFloat(document.getElementById("edit-price").value);
+  const cost = parseFloat(document.getElementById("edit-cost").value);
+  const quantity = parseInt(document.getElementById("edit-quantity").value);
+  const file = document.getElementById("edit-image-file").files[0];
+
+  if (!name || isNaN(price) || isNaN(cost) || isNaN(quantity)) {
+    showCustomAlert("กรุณากรอกข้อมูลให้ครบ");
+    return;
+  }
+
+  const updateData = {
+    barcode, name, price, cost, quantity
+  };
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64 = e.target.result.split(",")[1];
+      updateData.image = {
+        name: file.name,
+        type: file.type,
+        content: base64
+      };
+      google.script.run.withSuccessHandler(() => {
+        closeEditProductModal();
+        showCustomAlert("✅ แก้ไขสินค้าเรียบร้อย");
+        loadStock();
+        google.script.run.withSuccessHandler(renderProducts).getProducts();
+      }).updateProductWithImage(updateData);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    google.script.run.withSuccessHandler(() => {
+      closeEditProductModal();
+      showCustomAlert("✅ แก้ไขสินค้าเรียบร้อย");
+      loadStock();
+      google.script.run.withSuccessHandler(renderProducts).getProducts();
+    }).updateProduct(updateData);
+  }
+}
+function updateStockPreview() {
+  const baseQty = parseInt(document.getElementById("edit-quantity").dataset.originalQty || "0");
+  const inputIn = parseInt(document.getElementById("edit-in").value || "0");
+  const inputOut = parseInt(document.getElementById("edit-out").value || "0");
+  const result = baseQty + inputIn - inputOut;
+
+  document.getElementById("edit-quantity").value = result < 0 ? 0 : result;
+}
+////// สแกนบาร์โค้ด/////////
+let html5QrCode;
+
+function showBarcodeTypeModal() {
+  document.getElementById("barcode-type-modal").style.display = "block";
+  document.getElementById("manual-barcode").value = "";
+}
+
+function cancelBarcodeTypeModal() {
+  stopScan();
+  document.getElementById("barcode-type-modal").style.display = "none";
+  clearAddProductForm(); // เคลียร์ข้อมูลฟอร์มเพิ่มสินค้า
+}
+
+function confirmBarcodeType() {
+  const option = document.querySelector('input[name="barcode-option"]:checked').value;
+  let barcode = "";
+
+  if (option === 'yes') {
+    barcode = document.getElementById("manual-barcode").value.trim();
+    if (!barcode) {
+      alert("กรุณากรอกหรือสแกนบาร์โค้ด");
+      return;
+    }
+  } else {
+    barcode = generateBarcode13Digit(); // ✅ แทน Date.now().slice(-8)
+  }
+
+  stopScan();
+  document.getElementById("barcode-type-modal").style.display = "none";
+  showAddProductModal(barcode);
+}
+
+
+
+function startScan() {
+  document.getElementById("scan-area").style.display = "block";
+  html5QrCode = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+      html5QrCode.start(
+        devices[0].id,
+        { fps: 10, qrbox: 250 },
+        decodedText => {
+          document.getElementById("manual-barcode").value = decodedText;
+          stopScan();
+        },
+        error => {}
+      );
+    }
+  }).catch(err => {
+    alert("ไม่พบกล้องหรือไม่ได้อนุญาต");
+  });
+}
+
+function stopScan() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      document.getElementById("scan-area").style.display = "none";
+    });
+  }
+}
+
+//////////บาร์โค้ด13หลัก////////////
+function generateBarcode13Digit() {
+  let base = Date.now().toString();
+  base = base.slice(-10); // เอาเลข timestamp ด้านท้าย
+  while (base.length < 12) base = '0' + base;
+
+  // คำนวณ check digit ตามมาตรฐาน EAN-13
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    sum += parseInt(base.charAt(i)) * (i % 2 === 0 ? 1 : 3);
+  }
+  const checkDigit = (10 - (sum % 10)) % 10;
+  return base + checkDigit.toString();
+}
+
+
+
+    </script>
+  </body>
+</html>
